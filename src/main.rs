@@ -2,13 +2,15 @@ use std::sync::Arc;
 use std::time::SystemTime;
 
 use ethers::prelude::{
-    abigen, Address, LocalWallet, Middleware, Provider, SignerMiddleware, StreamExt, Ws,
+    Address, LocalWallet, Middleware, Provider, SignerMiddleware, StreamExt, Ws,
 };
 use ethers::signers::Signer;
 use ethers::types::{Bytes, U256};
 use eyre::Result;
 
-abigen!(IBC, "./src/IBC.json");
+// the generated ibc mod
+mod ibc;
+use ibc::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -64,4 +66,14 @@ async fn main() -> Result<()> {
 
     handler.await?;
     Ok(())
+}
+
+#[test]
+fn generate_ibc_contract() {
+    ethers::contract::Abigen::new("IBC", "./src/IBC.json")
+        .unwrap()
+        .generate()
+        .unwrap()
+        .write_to_file("./src/ibc.rs")
+        .unwrap();
 }
